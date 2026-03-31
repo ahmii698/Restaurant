@@ -1,54 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { galleryAPI } from '../services/api';
 import './Gallery.css';
 
 const Gallery = () => {
+    const [galleryItems, setGalleryItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const sectionRef = useRef(null);
     const headerRef = useRef(null);
 
-    const galleryItems = [
-        {
-            id: 1,
-            img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
-            title: 'Main Dining Hall',
-            span: 'row-span-2 col-span-2',
-            textSize: 'large'
-        },
-        {
-            id: 2,
-            img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400',
-            title: 'Signature Burger',
-            span: '',
-            textSize: 'normal'
-        },
-        {
-            id: 3,
-            img: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400',
-            title: 'Craft Cocktails',
-            span: '',
-            textSize: 'normal'
-        },
-        {
-            id: 4,
-            img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
-            title: 'Open Kitchen Experience',
-            span: 'col-span-2',
-            textSize: 'large'
-        },
-        {
-            id: 5,
-            img: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400',
-            title: 'Gourmet Creations',
-            span: '',
-            textSize: 'normal'
-        },
-        {
-            id: 6,
-            img: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=400',
-            title: 'VIP Lounge',
-            span: '',
-            textSize: 'normal'
+    // Fetch gallery data from database
+    useEffect(() => {
+        fetchGallery();
+    }, []);
+
+    const fetchGallery = async () => {
+        setLoading(true);
+        try {
+            const response = await galleryAPI.getAll();
+            console.log('Gallery data:', response.data);
+            setGalleryItems(response.data);
+        } catch (err) {
+            console.error('Error fetching gallery:', err);
+            setError('Failed to load gallery. Please try again.');
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
 
     useEffect(() => {
         // Intersection Observer for section visibility
@@ -64,8 +42,8 @@ const Gallery = () => {
                     if (headerRef.current) headerRef.current.classList.add('visible');
                     
                     // Add visible class to all gallery items
-                    const galleryItems = document.querySelectorAll('.gallery-item');
-                    galleryItems.forEach((item, index) => {
+                    const items = document.querySelectorAll('.gallery-item');
+                    items.forEach((item, index) => {
                         setTimeout(() => {
                             item.classList.add('visible');
                         }, index * 100);
@@ -81,17 +59,45 @@ const Gallery = () => {
         }
 
         return () => observer.disconnect();
-    }, []);
+    }, [galleryItems]);
 
-    const getSpanClass = (span) => {
-        if (span === 'row-span-2 col-span-2') return 'gallery-item-row-span-2';
-        if (span === 'col-span-2') return 'gallery-item-col-span-2';
+    const getSpanClass = (spanType) => {
+        if (spanType === 'row-span-2 col-span-2') return 'gallery-item-row-span-2';
+        if (spanType === 'col-span-2') return 'gallery-item-col-span-2';
         return '';
     };
 
-    const getTextClass = (size) => {
-        return size === 'large' ? 'gallery-overlay-text-large' : '';
+    const getTextClass = (textSize) => {
+        return textSize === 'large' ? 'gallery-overlay-text-large' : '';
     };
+
+    if (loading) {
+        return (
+            <section id="gallery" className="gallery-section">
+                <div className="container mx-auto px-6 text-center py-20">
+                    <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-gray-400 mt-4">Loading gallery...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section id="gallery" className="gallery-section">
+                <div className="container mx-auto px-6 text-center py-20">
+                    <i className="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+                    <p className="text-red-400">{error}</p>
+                    <button 
+                        onClick={fetchGallery}
+                        className="mt-4 px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="gallery" className="gallery-section" ref={sectionRef}>
@@ -120,15 +126,15 @@ const Gallery = () => {
                     {galleryItems.map((item) => (
                         <div 
                             key={item.id}
-                            className={`gallery-item ${getSpanClass(item.span)}`}
+                            className={`gallery-item ${getSpanClass(item.span_type)}`}
                         >
                             <img 
-                                src={item.img} 
+                                src={item.image_url} 
                                 alt={item.title} 
                                 className="gallery-img" 
                             />
                             <div className="gallery-overlay">
-                                <span className={`gallery-overlay-text ${getTextClass(item.textSize)}`}>
+                                <span className={`gallery-overlay-text ${getTextClass(item.text_size)}`}>
                                     {item.title}
                                 </span>
                             </div>

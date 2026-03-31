@@ -1,49 +1,71 @@
 import React, { useState, useEffect } from 'react';
+import { heroAPI } from '../services/api';
 import './Hero.css';
 
 const Hero = () => {
+    const [heroData, setHeroData] = useState(null);
+    const [stats, setStats] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isVisible, setIsVisible] = useState(false);
     const [isVideoLoading, setIsVideoLoading] = useState(true);
-    const [counters, setCounters] = useState({
-        burgers: 0,
-        years: 0,
-        awards: 0
-    });
+    const [counters, setCounters] = useState({});
+
+    // Fetch hero data from database
+    useEffect(() => {
+        fetchHeroData();
+    }, []);
+
+    const fetchHeroData = async () => {
+        try {
+            const response = await heroAPI.getContent();
+            console.log('Hero data:', response.data);
+            setHeroData(response.data.hero);
+            setStats(response.data.stats);
+            
+            // Initialize counters
+            const initialCounters = {};
+            response.data.stats.forEach(stat => {
+                initialCounters[stat.id] = 0;
+            });
+            setCounters(initialCounters);
+        } catch (error) {
+            console.error('Error fetching hero data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Show content after 8 seconds or video loads
+        // Show content after 8 seconds
         const timer = setTimeout(() => {
             setIsVisible(true);
         }, 8000);
 
-        // Animate counters when visible
-        if (isVisible) {
-            const animateCounter = (target, field, duration = 2000) => {
-                const stepTime = 20;
-                const steps = duration / stepTime;
-                const increment = target / steps;
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Animate counters when visible
+    useEffect(() => {
+        if (isVisible && stats.length > 0) {
+            stats.forEach((stat) => {
+                const target = stat.value;
                 let current = 0;
+                const increment = target / 50;
                 
                 const interval = setInterval(() => {
                     current += increment;
                     if (current >= target) {
-                        setCounters(prev => ({ ...prev, [field]: target }));
+                        setCounters(prev => ({ ...prev, [stat.id]: target }));
                         clearInterval(interval);
                     } else {
-                        setCounters(prev => ({ ...prev, [field]: Math.floor(current) }));
+                        setCounters(prev => ({ ...prev, [stat.id]: Math.floor(current) }));
                     }
-                }, stepTime);
+                }, 20);
                 
-                return interval;
-            };
-            
-            animateCounter(85, 'burgers');
-            animateCounter(15, 'years');
-            animateCounter(25, 'awards');
+                return () => clearInterval(interval);
+            });
         }
-        
-        return () => clearTimeout(timer);
-    }, [isVisible]);
+    }, [isVisible, stats]);
 
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
@@ -55,6 +77,16 @@ const Hero = () => {
     const handleArrowClick = () => {
         scrollToSection('about');
     };
+
+    if (loading) {
+        return (
+            <section id="home" className="hero-section">
+                <div className="container mx-auto px-6 text-center py-40">
+                    <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="home" className="hero-section">
@@ -70,7 +102,7 @@ const Hero = () => {
                     onPlaying={() => setIsVideoLoading(false)}
                     onError={() => setIsVideoLoading(false)}
                 >
-                    <source src="/video/burg_vid.mp4" type="video/mp4" />
+                    <source src={heroData?.video_url || '/video/burg_vid.mp4'} type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
                 {isVideoLoading && (
@@ -83,13 +115,12 @@ const Hero = () => {
             {/* Main Content */}
             <div className={`hero-content ${isVisible ? 'visible' : ''}`}>
                 <div className="hero-title">
-                    <span className="hero-title-line gradient-gold gold-glow">Luxury Dining</span>
-                    <span className="hero-title-line text-white">Reimagined</span>
+                    <span className="hero-title-line gradient-gold gold-glow">{heroData?.heading_1 || 'Luxury Dining'}</span>
+                    <span className="hero-title-line text-white">{heroData?.heading_2 || 'Reimagined'}</span>
                 </div>
                 
                 <p className="hero-description">
-                    Experience the pinnacle of gastronomy. Handcrafted burgers, premium ingredients, 
-                    and an ambiance that defines elegance.
+                    {heroData?.description || 'Experience the pinnacle of gastronomy. Handcrafted burgers, premium ingredients, and an ambiance that defines elegance.'}
                 </p>
                 
                 <div className="hero-buttons">
@@ -97,37 +128,31 @@ const Hero = () => {
                         onClick={() => scrollToSection('menu')} 
                         className="btn-primary"
                     >
-                        <i className="fas fa-utensils"></i> 
-                        Explore Menu
+                        <i className={`fas ${heroData?.btn_1_icon || 'fa-utensils'}`}></i> 
+                        {heroData?.btn_1_text || 'Explore Menu'}
                         <i className="fas fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
                     </button>
                     <button 
                         onClick={() => window.toggleBooking && window.toggleBooking()} 
                         className="btn-outline"
                     >
-                        <i className="fas fa-calendar-alt"></i> 
-                        Reserve Now
+                        <i className={`fas ${heroData?.btn_2_icon || 'fa-calendar-alt'}`}></i> 
+                        {heroData?.btn_2_text || 'Reserve Now'}
                     </button>
                 </div>
                 
                 {/* Stats with animated numbers */}
                 <div className="hero-stats">
-                    <div className="stat-item">
-                        <div className="stat-number">{counters.burgers}</div>
-                        <div className="stat-label">Gourmet Burgers</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-number">{counters.years}</div>
-                        <div className="stat-label">Years Excellence</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-number">{counters.awards}</div>
-                        <div className="stat-label">Awards Won</div>
-                    </div>
+                    {stats.map((stat) => (
+                        <div key={stat.id} className="stat-item">
+                            <div className="stat-number">{counters[stat.id] || 0}</div>
+                            <div className="stat-label">{stat.label}</div>
+                        </div>
+                    ))}
                 </div>
             </div>
             
-        
+           
         </section>
     );
 };

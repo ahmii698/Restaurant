@@ -34,8 +34,25 @@ const BookingModal = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        
+        // Phone number validation - only numbers
+        if (name === 'phone') {
+            const onlyNumbers = value.replace(/[^0-9]/g, '');
+            setFormData({ ...formData, [name]: onlyNumbers });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
+        
         if (error) setError('');
+    };
+
+    // Get today's date for min date attribute
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const handleSubmit = async (e) => {
@@ -43,8 +60,14 @@ const BookingModal = () => {
         setIsLoading(true);
         setError('');
         
+        // Validate phone number length
+        if (formData.phone.length < 10) {
+            setError('Please enter a valid phone number (at least 10 digits)');
+            setIsLoading(false);
+            return;
+        }
+        
         try {
-            // Prepare data for API
             const reservationData = {
                 name: formData.name,
                 phone: formData.phone,
@@ -53,7 +76,7 @@ const BookingModal = () => {
                 time: formData.time,
                 guests: formData.guests,
                 special_requests: formData.specialRequest || null,
-                vip: false
+                
             };
             
             console.log('Sending quick reservation:', reservationData);
@@ -131,119 +154,134 @@ const BookingModal = () => {
                     
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Name Field */}
-                        <div className="relative">
-                            <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm"></i>
+                        <div>
+                            <label className="block text-yellow-500 text-sm font-semibold mb-1">
+                                <i className="fas fa-user mr-2"></i>
+                                Your Name
+                            </label>
                             <input 
                                 type="text" 
                                 name="name" 
                                 required 
-                                placeholder="Your Name" 
+                                placeholder="Enter your full name" 
                                 value={formData.name}
                                 onChange={handleChange} 
-                                className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
+                                className="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
                             />
                         </div>
                         
                         {/* Phone Field */}
-                        <div className="relative">
-                            <i className="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm"></i>
+                        <div>
+                            <label className="block text-yellow-500 text-sm font-semibold mb-1">
+                                <i className="fas fa-phone mr-2"></i>
+                                Phone Number
+                            </label>
                             <input 
                                 type="tel" 
                                 name="phone" 
                                 required 
-                                placeholder="Phone Number" 
+                                placeholder="Enter your phone number" 
                                 value={formData.phone}
                                 onChange={handleChange} 
-                                className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
+                                className="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
                             />
                         </div>
                         
                         {/* Email Field (Optional) */}
-                        <div className="relative">
-                            <i className="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm"></i>
+                        <div>
+                            <label className="block text-yellow-500 text-sm font-semibold mb-1">
+                                <i className="fas fa-envelope mr-2"></i>
+                                Email (Optional)
+                            </label>
                             <input 
                                 type="email" 
                                 name="email" 
-                                placeholder="Email (Optional)" 
+                                placeholder="Enter your email address" 
                                 value={formData.email}
                                 onChange={handleChange} 
-                                className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
+                                className="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
                             />
                         </div>
                         
                         {/* Date and Time Grid */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="relative">
-                                <i className="fas fa-calendar-alt absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm"></i>
+                            <div>
+                                <label className="block text-yellow-500 text-sm font-semibold mb-1">
+                                    <i className="fas fa-calendar-alt mr-2"></i>
+                                    Date
+                                </label>
                                 <input 
                                     type="date" 
                                     name="date" 
                                     required 
+                                    min={getTodayDate()}
                                     value={formData.date}
                                     onChange={handleChange} 
-                                    className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
+                                    className="form-input w-full px-4 py-3 rounded-xl text-white bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300" 
                                 />
                             </div>
-                            <div className="relative">
-                                <i className="fas fa-clock absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm"></i>
+                            <div>
+                                <label className="block text-yellow-500 text-sm font-semibold mb-1">
+                                    <i className="fas fa-clock mr-2"></i>
+                                    Time
+                                </label>
                                 <select 
                                     name="time" 
                                     required 
                                     value={formData.time}
                                     onChange={handleChange} 
-                                    className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300 appearance-none cursor-pointer"
+                                    className="form-input w-full px-4 py-3 rounded-xl text-white bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300 appearance-none cursor-pointer"
                                 >
                                     <option value="" className="bg-gray-900">Select Time</option>
-                                    <option>11:00 AM</option>
-                                    <option>12:00 PM</option>
-                                    <option>01:00 PM</option>
-                                    <option>06:00 PM</option>
-                                    <option>07:00 PM</option>
-                                    <option>08:00 PM</option>
-                                    <option>09:00 PM</option>
+                                    <option value="11:00 AM" className="bg-gray-900">11:00 AM</option>
+                                    <option value="12:00 PM" className="bg-gray-900">12:00 PM</option>
+                                    <option value="01:00 PM" className="bg-gray-900">01:00 PM</option>
+                                    <option value="06:00 PM" className="bg-gray-900">06:00 PM</option>
+                                    <option value="07:00 PM" className="bg-gray-900">07:00 PM</option>
+                                    <option value="08:00 PM" className="bg-gray-900">08:00 PM</option>
+                                    <option value="09:00 PM" className="bg-gray-900">09:00 PM</option>
                                 </select>
-                                <i className="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm pointer-events-none"></i>
                             </div>
                         </div>
                         
                         {/* Guests Select */}
-                        <div className="relative">
-                            <i className="fas fa-users absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm"></i>
+                        <div>
+                            <label className="block text-yellow-500 text-sm font-semibold mb-1">
+                                <i className="fas fa-users mr-2"></i>
+                                Number of Guests
+                            </label>
                             <select 
                                 name="guests" 
                                 required 
                                 value={formData.guests}
                                 onChange={handleChange} 
-                                className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300 appearance-none cursor-pointer"
+                                className="form-input w-full px-4 py-3 rounded-xl text-white bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300 appearance-none cursor-pointer"
                             >
-                                <option value="" className="bg-gray-900">Number of Guests</option>
-                                <option>1 Person</option>
-                                <option>2 People</option>
-                                <option>3-4 People</option>
-                                <option>5-6 People</option>
-                                <option>7-8 People</option>
-                                <option>8+ People</option>
+                                <option value="" className="bg-gray-900">Select number of guests</option>
+                                <option value="1 Person" className="bg-gray-900">1 Person</option>
+                                <option value="2 People" className="bg-gray-900">2 People</option>
+                                <option value="3 People" className="bg-gray-900">3 People</option>
+                                <option value="4 People" className="bg-gray-900">4 People</option>
+                                <option value="5-6 People" className="bg-gray-900">5-6 People</option>
+                                <option value="7-8 People" className="bg-gray-900">7-8 People</option>
+                                <option value="8+ People" className="bg-gray-900">8+ People</option>
                             </select>
-                            <i className="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-yellow-500/50 text-sm pointer-events-none"></i>
                         </div>
                         
                         {/* Special Request Field */}
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-2">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
                                 <i className="fas fa-gift text-yellow-500 text-sm"></i>
-                                <span className="text-xs text-yellow-500 font-medium">Special Request (Optional)</span>
+                                <span className="text-yellow-500 text-sm font-semibold">Special Request (Optional)</span>
                             </div>
-                            <div className="relative">
-                                <i className="fas fa-comment-dots absolute left-4 top-4 text-yellow-500/50 text-sm"></i>
-                                <textarea 
-                                    name="specialRequest" 
-                                    rows="3" 
-                                    placeholder="Birthday surprise? Anniversary celebration? Any special arrangements? Let us know..."
-                                    value={formData.specialRequest}
-                                    onChange={handleChange} 
-                                    className="form-input w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300 resize-none"
-                                ></textarea>
-                            </div>
+                            <textarea 
+                                name="specialRequest" 
+                                rows="3" 
+                                placeholder="Birthday surprise? Anniversary celebration? Any special arrangements? Let us know..."
+                                value={formData.specialRequest}
+                                onChange={handleChange} 
+                                className="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 bg-white/5 border border-yellow-500/20 focus:border-yellow-500 transition-all duration-300 resize-none"
+                            ></textarea>
                             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                                 <i className="fas fa-info-circle text-yellow-500/50"></i>
                                 We'll do our best to make your experience special!

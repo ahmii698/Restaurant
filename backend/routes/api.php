@@ -5,22 +5,31 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\GalleryController;
 
-// Test route - yeh check karne ke liye
+// ============ TEST ROUTE ============
 Route::get('/test', function() {
-    return response()->json(['message' => 'API is working!']);
+    return response()->json([
+        'message' => 'API is working!',
+        'status' => 'success',
+        'timestamp' => now()
+    ]);
 });
 
-// Menu Routes
+// ============ MENU ROUTES ============
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/menu/{category}', [MenuController::class, 'getByCategory']);
 
-// Reservation Routes
+// ============ RESERVATION ROUTES ============
 Route::post('/reservation', [ReservationController::class, 'store']);
 Route::get('/reservations', [ReservationController::class, 'index']);
 
-// Contact Routes
+// ============ CONTACT ROUTES ============
 Route::post('/contact', [ContactController::class, 'store']);
 
-// Newsletter Routes
+// ============ NEWSLETTER ROUTES ============
 Route::post('/newsletter', [NewsletterController::class, 'store']);
+
+// ============ GALLERY ROUTES ============
+Route::get('/gallery', [GalleryController::class, 'index']);
+Route::get('/gallery/{category}', [GalleryController::class, 'getByCategory']);

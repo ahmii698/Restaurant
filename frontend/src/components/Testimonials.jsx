@@ -1,72 +1,72 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { testimonialAPI } from '../services/api';
 import './Testimonials.css';
 
 const Testimonials = () => {
+    const [testimonials, setTestimonials] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [currentDesktopIndex, setCurrentDesktopIndex] = useState(0);
+    const [currentMobileIndex, setCurrentMobileIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(false);
+    
     const sectionRef = useRef(null);
     const headerRef = useRef(null);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isMobile, setIsMobile] = useState(false);
 
-    const testimonials = [
-        {
-            id: 1,
-            stars: 5,
-            quote: "The best dining experience I've ever had! The Wagyu truffle burger is absolutely divine. Service is impeccable.",
-            name: "Michael K.",
-            title: "Food Critic",
-            initials: "MK"
-        },
-        {
-            id: 2,
-            stars: 5,
-            quote: "Outstanding ambiance and even better food. The craft beer selection is exceptional. Will definitely return!",
-            name: "Sarah R.",
-            title: "Regular Customer",
-            initials: "SR"
-        },
-        {
-            id: 3,
-            stars: 5,
-            quote: "Perfect for business dinners and special occasions. Professional service, elegant atmosphere, and consistently excellent.",
-            name: "David C.",
-            title: "Business Executive",
-            initials: "DC"
-        },
-        {
-            id: 4,
-            stars: 5,
-            quote: "The ambiance is incredible! Perfect for date nights. The staff is super friendly and the food is to die for.",
-            name: "Emily W.",
-            title: "Food Blogger",
-            initials: "EW"
-        },
-        {
-            id: 5,
-            stars: 5,
-            quote: "Best steak I've ever had! The truffle fries are a must-try. Will definitely be coming back.",
-            name: "James L.",
-            title: "Regular Customer",
-            initials: "JL"
+    // Create groups of 3 testimonials for desktop slider
+    const getDesktopGroups = () => {
+        const groups = [];
+        for (let i = 0; i < testimonials.length; i += 3) {
+            groups.push(testimonials.slice(i, i + 3));
         }
-    ];
+        return groups;
+    };
+
+    const desktopGroups = getDesktopGroups();
 
     useEffect(() => {
+        fetchTestimonials();
+        
         // Check if mobile
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768);
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
-
+        
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Auto slide for mobile - 5 seconds
+    const fetchTestimonials = async () => {
+        setLoading(true);
+        try {
+            const response = await testimonialAPI.getActive();
+            setTestimonials(response.data);
+        } catch (err) {
+            console.error('Error fetching testimonials:', err);
+            setError('Failed to load testimonials. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Auto slide for desktop (3 cards at a time)
     useEffect(() => {
-        if (!isMobile) return;
+        if (isMobile || desktopGroups.length === 0) return;
         
         const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+            setCurrentDesktopIndex((prev) => (prev + 1) % desktopGroups.length);
+        }, 6000);
+
+        return () => clearInterval(interval);
+    }, [isMobile, desktopGroups.length]);
+
+    // Auto slide for mobile (1 card at a time)
+    useEffect(() => {
+        if (!isMobile || testimonials.length === 0) return;
+        
+        const interval = setInterval(() => {
+            setCurrentMobileIndex((prev) => (prev + 1) % testimonials.length);
         }, 5000);
 
         return () => clearInterval(interval);
@@ -103,18 +103,30 @@ const Testimonials = () => {
         }
 
         return () => observer.disconnect();
-    }, [isMobile]);
+    }, [isMobile, desktopGroups]);
 
-    const goToSlide = (index) => {
-        setCurrentIndex(index);
+    const goToDesktopGroup = (index) => {
+        setCurrentDesktopIndex(index);
     };
 
-    const nextSlide = () => {
-        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    const nextDesktopGroup = () => {
+        setCurrentDesktopIndex((prev) => (prev + 1) % desktopGroups.length);
     };
 
-    const prevSlide = () => {
-        setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    const prevDesktopGroup = () => {
+        setCurrentDesktopIndex((prev) => (prev - 1 + desktopGroups.length) % desktopGroups.length);
+    };
+
+    const goToMobileSlide = (index) => {
+        setCurrentMobileIndex(index);
+    };
+
+    const nextMobileSlide = () => {
+        setCurrentMobileIndex((prev) => (prev + 1) % testimonials.length);
+    };
+
+    const prevMobileSlide = () => {
+        setCurrentMobileIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
     };
 
     const renderStars = (count) => {
@@ -123,14 +135,37 @@ const Testimonials = () => {
         ));
     };
 
+    if (loading) {
+        return (
+            <section className="testimonials-section">
+                <div className="container mx-auto px-6 text-center py-20">
+                    <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-gray-400 mt-4">Loading reviews...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section className="testimonials-section">
+                <div className="container mx-auto px-6 text-center py-20">
+                    <i className="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+                    <p className="text-red-400">{error}</p>
+                </div>
+            </section>
+        );
+    }
+
+    // Current desktop group to display
+    const currentGroup = desktopGroups[currentDesktopIndex] || [];
+
     return (
         <section id="testimonials" className="testimonials-section" ref={sectionRef}>
-            {/* Animated Background Elements */}
             <div className="testimonials-bg-1"></div>
             <div className="testimonials-bg-2"></div>
             
             <div className="container mx-auto px-6 relative z-10">
-                {/* Section Header */}
                 <div className="testimonials-header" ref={headerRef}>
                     <div className="testimonials-badge">
                         <span className="testimonials-badge-text">
@@ -145,39 +180,59 @@ const Testimonials = () => {
                     </p>
                 </div>
                 
-                {/* Desktop View - 3 Cards Grid */}
-                <div className="testimonials-grid desktop-view">
-                    {testimonials.slice(0, 3).map((testimonial) => (
-                        <div key={testimonial.id} className="testimonial-card">
-                            <div className="testimonial-stars">
-                                {renderStars(testimonial.stars)}
-                            </div>
-                            <p className="testimonial-quote">"{testimonial.quote}"</p>
-                            <div className="testimonial-author">
-                                <div className="testimonial-avatar">
-                                    {testimonial.initials}
+                {/* ============ DESKTOP VIEW - 3 CARDS WITH CONTROLS BELOW ============ */}
+                <div className="desktop-view">
+                    {/* Desktop Grid - 3 Cards */}
+                    <div className="desktop-grid">
+                        {currentGroup.map((testimonial) => (
+                            <div key={testimonial.id} className="testimonial-card">
+                                <div className="testimonial-stars">
+                                    {renderStars(testimonial.stars)}
                                 </div>
-                                <div>
-                                    <div className="testimonial-author-name">{testimonial.name}</div>
-                                    <div className="testimonial-author-title">{testimonial.title}</div>
+                                <p className="testimonial-quote">"{testimonial.quote}"</p>
+                                <div className="testimonial-author">
+                                    <div className="testimonial-avatar">
+                                        {testimonial.initials}
+                                    </div>
+                                    <div>
+                                        <div className="testimonial-author-name">{testimonial.name}</div>
+                                        <div className="testimonial-author-title">{testimonial.title}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-                
-                {/* Mobile View - 1 Card Slider */}
-                <div className="mobile-view">
-                    <div className="testimonials-slider">
-                        <button className="slider-nav prev" onClick={prevSlide}>
+                        ))}
+                    </div>
+                    
+                    {/* Desktop Controls - BELOW Cards */}
+                    <div className="desktop-controls">
+                        <button className="desktop-nav-btn prev" onClick={prevDesktopGroup}>
                             <i className="fas fa-chevron-left"></i>
                         </button>
-                        
+                        <div className="desktop-dots">
+                            {desktopGroups.map((_, idx) => (
+                                <button
+                                    key={idx}
+                                    className={`desktop-dot ${idx === currentDesktopIndex ? 'active' : ''}`}
+                                    onClick={() => goToDesktopGroup(idx)}
+                                ></button>
+                            ))}
+                        </div>
+                        <button className="desktop-nav-btn next" onClick={nextDesktopGroup}>
+                            <i className="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                {/* ============ MOBILE VIEW - 1 CARD WITH CONTROLS BELOW ============ */}
+                <div className="mobile-view">
+                    {/* Mobile Card */}
+                    <div className="testimonials-slider">
                         <div className="slider-container">
                             {testimonials.map((testimonial, idx) => (
                                 <div 
                                     key={testimonial.id} 
-                                    className={`mobile-card ${idx === currentIndex ? 'active' : ''}`}
+                                    className={`mobile-card ${idx === currentMobileIndex ? 'active' : ''}`}
+                                    style={{ display: idx === currentMobileIndex ? 'block' : 'none' }}
                                 >
                                     <div className="testimonial-stars">
                                         {renderStars(testimonial.stars)}
@@ -196,20 +251,24 @@ const Testimonials = () => {
                             ))}
                         </div>
                         
-                        <button className="slider-nav next" onClick={nextSlide}>
-                            <i className="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    
-                    {/* Dots Indicator */}
-                    <div className="slider-dots">
-                        {testimonials.map((_, idx) => (
-                            <button
-                                key={idx}
-                                className={`dot ${idx === currentIndex ? 'active' : ''}`}
-                                onClick={() => goToSlide(idx)}
-                            ></button>
-                        ))}
+                        {/* Mobile Controls - BELOW Card */}
+                        <div className="mobile-controls">
+                            <button className="slider-nav prev" onClick={prevMobileSlide}>
+                                <i className="fas fa-chevron-left"></i>
+                            </button>
+                            <div className="slider-dots">
+                                {testimonials.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        className={`dot ${idx === currentMobileIndex ? 'active' : ''}`}
+                                        onClick={() => goToMobileSlide(idx)}
+                                    ></button>
+                                ))}
+                            </div>
+                            <button className="slider-nav next" onClick={nextMobileSlide}>
+                                <i className="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -6,12 +6,12 @@ const Reservation = () => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
-        email: '',  // Added email field
+        email: '',
         date: '',
         time: '',
         guests: '',
         special_requests: '',
-        vip: false
+       
     });
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -23,13 +23,32 @@ const Reservation = () => {
     const cardRef = useRef(null);
     const btnRef = useRef(null);
 
+    // Get today's date for min date attribute
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
-        // Clear error when user starts typing
+        
+        // Phone number validation - only numbers
+        if (name === 'phone') {
+            const onlyNumbers = value.replace(/[^0-9]/g, '');
+            setFormData({
+                ...formData,
+                [name]: onlyNumbers
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: type === 'checkbox' ? checked : value
+            });
+        }
+        
         if (error) setError('');
     };
 
@@ -37,6 +56,13 @@ const Reservation = () => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+        
+        // Validate phone number length
+        if (formData.phone.length < 10) {
+            setError('Please enter a valid phone number (at least 10 digits)');
+            setIsLoading(false);
+            return;
+        }
         
         try {
             console.log('Sending reservation data:', formData);
@@ -63,7 +89,6 @@ const Reservation = () => {
             console.error('Error response:', err.response?.data);
             
             if (err.response?.data?.errors) {
-                // Validation errors
                 const errors = err.response.data.errors;
                 const errorMessages = Object.values(errors).flat().join(', ');
                 setError(errorMessages);
@@ -78,7 +103,6 @@ const Reservation = () => {
     };
 
     useEffect(() => {
-        // Intersection Observer for section visibility
         const observerOptions = {
             threshold: 0.2,
             rootMargin: '0px 0px -50px 0px'
@@ -125,8 +149,15 @@ const Reservation = () => {
         }
     }, [isSubmitted]);
 
-    const timeSlots = ['11:00 AM', '12:00 PM', '01:00 PM', '06:00 PM', '07:00 PM', '08:00 PM', '09:00 PM'];
-    const guestOptions = ['1 Person', '2 People', '3 People', '4 People', '5-8 People', '8+ People'];
+    const timeSlots = [
+        '11:00 AM', '12:00 PM', '01:00 PM', 
+        '06:00 PM', '07:00 PM', '08:00 PM', '09:00 PM'
+    ];
+    
+    const guestOptions = [
+        '1 Person', '2 People', '3 People', '4 People', 
+        '5-6 People', '7-8 People', '8+ People'
+    ];
 
     return (
         <section id="reservation" className="reservation-section" ref={sectionRef}>
@@ -167,6 +198,9 @@ const Reservation = () => {
                                 
                                 {/* Personal Information Section */}
                                 <div className="form-section">
+                                    <h3 className="text-xl font-bold text-white mb-4 border-l-4 border-yellow-500 pl-3">
+                                        Personal Information
+                                    </h3>
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="input-group">
                                             <label className="form-label">
@@ -177,8 +211,9 @@ const Reservation = () => {
                                                 type="text" 
                                                 name="name" 
                                                 required 
+                                                value={formData.name}
                                                 onChange={handleChange} 
-                                                className="form-input" 
+                                                className="form-input w-full px-4 py-3 rounded-xl" 
                                                 placeholder="John Doe" 
                                             />
                                         </div>
@@ -191,9 +226,10 @@ const Reservation = () => {
                                                 type="tel" 
                                                 name="phone" 
                                                 required 
+                                                value={formData.phone}
                                                 onChange={handleChange} 
-                                                className="form-input" 
-                                                placeholder="+1 (555) 000-0000" 
+                                                className="form-input w-full px-4 py-3 rounded-xl" 
+                                                placeholder="1234567890" 
                                             />
                                         </div>
                                         <div className="input-group">
@@ -204,8 +240,9 @@ const Reservation = () => {
                                             <input 
                                                 type="email" 
                                                 name="email" 
+                                                value={formData.email}
                                                 onChange={handleChange} 
-                                                className="form-input" 
+                                                className="form-input w-full px-4 py-3 rounded-xl" 
                                                 placeholder="john@example.com" 
                                             />
                                         </div>
@@ -214,6 +251,9 @@ const Reservation = () => {
                                 
                                 {/* Reservation Details Section */}
                                 <div className="form-section">
+                                    <h3 className="text-xl font-bold text-white mb-4 border-l-4 border-yellow-500 pl-3">
+                                        Reservation Details
+                                    </h3>
                                     <div className="grid md:grid-cols-3 gap-6">
                                         <div className="input-group">
                                             <label className="form-label">
@@ -224,8 +264,10 @@ const Reservation = () => {
                                                 type="date" 
                                                 name="date" 
                                                 required 
+                                                min={getTodayDate()}
+                                                value={formData.date}
                                                 onChange={handleChange} 
-                                                className="form-input" 
+                                                className="form-input w-full px-4 py-3 rounded-xl" 
                                             />
                                         </div>
                                         <div className="input-group">
@@ -236,12 +278,13 @@ const Reservation = () => {
                                             <select 
                                                 name="time" 
                                                 required 
+                                                value={formData.time}
                                                 onChange={handleChange} 
-                                                className="form-input"
+                                                className="form-input w-full px-4 py-3 rounded-xl appearance-none cursor-pointer"
                                             >
-                                                <option value="">Select Time</option>
+                                                <option value="" className="bg-gray-900">Select Time</option>
                                                 {timeSlots.map(slot => (
-                                                    <option key={slot} value={slot}>{slot}</option>
+                                                    <option key={slot} value={slot} className="bg-gray-900">{slot}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -253,12 +296,13 @@ const Reservation = () => {
                                             <select 
                                                 name="guests" 
                                                 required 
+                                                value={formData.guests}
                                                 onChange={handleChange} 
-                                                className="form-input"
+                                                className="form-input w-full px-4 py-3 rounded-xl appearance-none cursor-pointer"
                                             >
-                                                <option value="">Number of Guests</option>
+                                                <option value="" className="bg-gray-900">Select Guests</option>
                                                 {guestOptions.map(option => (
-                                                    <option key={option} value={option}>{option}</option>
+                                                    <option key={option} value={option} className="bg-gray-900">{option}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -267,35 +311,28 @@ const Reservation = () => {
                                 
                                 {/* Special Requests Section */}
                                 <div className="form-section">
+                                    <h3 className="text-xl font-bold text-white mb-4 border-l-4 border-yellow-500 pl-3">
+                                        Special Requests
+                                    </h3>
                                     <div className="input-group">
                                         <label className="form-label">
                                             <i className="fas fa-comment-dots mr-2"></i>
-                                            Special Requests
+                                            Anything we should know?
                                         </label>
                                         <textarea 
                                             name="special_requests" 
                                             rows="3" 
+                                            value={formData.special_requests}
                                             onChange={handleChange} 
-                                            className="form-input" 
-                                            placeholder="Dietary restrictions, special occasions, seating preferences..."
+                                            className="form-input w-full px-4 py-3 rounded-xl resize-none" 
+                                            placeholder="Dietary restrictions, special occasions, seating preferences, allergies..."
                                         ></textarea>
                                     </div>
                                 </div>
                                 
                                 {/* VIP Checkbox */}
                                 <div className="form-section">
-                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                                        <input 
-                                            type="checkbox" 
-                                            name="vip" 
-                                            id="vip" 
-                                            onChange={handleChange} 
-                                            className="w-5 h-5 accent-yellow-500 rounded cursor-pointer" 
-                                        />
-                                        <label htmlFor="vip" className="text-sm cursor-pointer">
-                                            ✨ VIP Experience (Private Booth + Complimentary Welcome Drink)
-                                        </label>
-                                    </div>
+                                    
                                 </div>
                                 
                                 {/* Submit Button */}
@@ -313,14 +350,14 @@ const Reservation = () => {
                                     ) : (
                                         <>
                                             Confirm Reservation 
-                                            <i className="fas fa-arrow-right"></i>
+                                            <i className="fas fa-arrow-right ml-2"></i>
                                         </>
                                     )}
                                 </button>
                             </form>
                         ) : (
-                            <div className="success-message">
-                                <div className="success-icon">
+                            <div className="success-message text-center py-12">
+                                <div className="success-icon w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <i className="fas fa-check text-4xl text-white"></i>
                                 </div>
                                 <h3 className="text-3xl md:text-4xl font-bold text-white mb-3 gradient-gold">

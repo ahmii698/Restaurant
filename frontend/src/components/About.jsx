@@ -1,7 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { aboutAPI } from '../services/api';
 import './About.css';
 
 const About = () => {
+    const [aboutData, setAboutData] = useState(null);
+    const [features, setFeatures] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
         if (element) {
@@ -13,6 +19,26 @@ const About = () => {
     const imageRef = useRef(null);
     const contentRef = useRef(null);
     const featuresRef = useRef(null);
+
+    // Fetch about data from database
+    useEffect(() => {
+        fetchAboutData();
+    }, []);
+
+    const fetchAboutData = async () => {
+        setLoading(true);
+        try {
+            const response = await aboutAPI.getContent();
+            console.log('About data:', response.data);
+            setAboutData(response.data.about);
+            setFeatures(response.data.features);
+        } catch (err) {
+            console.error('Error fetching about data:', err);
+            setError('Failed to load about section. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         // Intersection Observer for fade-up animation
@@ -39,7 +65,35 @@ const About = () => {
         featureItems.forEach(item => observer.observe(item));
 
         return () => observer.disconnect();
-    }, []);
+    }, [features]);
+
+    if (loading) {
+        return (
+            <section id="about" className="about-section">
+                <div className="container mx-auto px-6 text-center py-20">
+                    <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-gray-400 mt-4">Loading about us...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section id="about" className="about-section">
+                <div className="container mx-auto px-6 text-center py-20">
+                    <i className="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+                    <p className="text-red-400">{error}</p>
+                    <button 
+                        onClick={fetchAboutData}
+                        className="mt-4 px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="about" className="about-section">
@@ -64,7 +118,7 @@ const About = () => {
                         {/* Main Image Container */}
                         <div className="about-image-container group">
                             <img 
-                                src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800" 
+                                src={aboutData?.image_url || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800'} 
                                 alt="Restaurant Interior" 
                                 className="about-image" 
                             />
@@ -77,8 +131,12 @@ const About = () => {
                                 <div className="flex items-center gap-3">
                                     <div className="badge-line"></div>
                                     <div>
-                                        <p className="text-yellow-400 font-bold text-sm uppercase tracking-wider animate-fade-in">Est. 2010</p>
-                                        <h3 className="text-2xl font-bold mt-1 text-white animate-slide-up">Where Flavor Meets Passion</h3>
+                                        <p className="text-yellow-400 font-bold text-sm uppercase tracking-wider animate-fade-in">
+                                            Est. {aboutData?.established_year || '2010'}
+                                        </p>
+                                        <h3 className="text-2xl font-bold mt-1 text-white animate-slide-up">
+                                            {aboutData?.image_badge_text || 'Where Flavor Meets Passion'}
+                                        </h3>
                                     </div>
                                 </div>
                             </div>
@@ -98,21 +156,21 @@ const About = () => {
                         <div className="story-badge">
                             <span className="story-badge-content">
                                 <span className="ping-dot"></span>
-                                Our Story
+                                {aboutData?.badge || 'Our Story'}
                             </span>
                         </div>
                         
                         {/* Animated Title */}
                         <h2 className="text-5xl font-bold mb-6 gradient-gold animate-slide-up">
-                            A Legacy of <br />Culinary Excellence
+                            {aboutData?.heading || 'A Legacy of Culinary Excellence'}
                         </h2>
                         
                         {/* Animated Text */}
                         <p className="text-gray-300 mb-6 text-lg leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                            The Gourmet Bistro was born from a vision to create extraordinary dining experiences. Every ingredient is carefully sourced from around the world, every dish crafted with artistic precision.
+                            {aboutData?.paragraph_1 || 'The Gourmet Bistro was born from a vision to create extraordinary dining experiences. Every ingredient is carefully sourced from around the world, every dish crafted with artistic precision.'}
                         </p>
                         <p className="text-gray-400 mb-8 leading-relaxed animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                            From Australian Wagyu to Italian truffles, our commitment to quality is uncompromising. Join us for a journey that celebrates flavor, passion, and perfection.
+                            {aboutData?.paragraph_2 || 'From Australian Wagyu to Italian truffles, our commitment to quality is uncompromising. Join us for a journey that celebrates flavor, passion, and perfection.'}
                         </p>
                         
                         {/* Features Grid with Staggered Animation */}
@@ -120,22 +178,12 @@ const About = () => {
                             ref={featuresRef}
                             className="grid grid-cols-2 gap-5 mb-10"
                         >
-                            <div className="feature-item feature-card">
-                                <i className="fas fa-check-circle feature-icon"></i>
-                                <span className="feature-text">Premium Wagyu Beef</span>
-                            </div>
-                            <div className="feature-item feature-card">
-                                <i className="fas fa-check-circle feature-icon"></i>
-                                <span className="feature-text">Fresh Daily Produce</span>
-                            </div>
-                            <div className="feature-item feature-card">
-                                <i className="fas fa-check-circle feature-icon"></i>
-                                <span className="feature-text">Artisanal Buns</span>
-                            </div>
-                            <div className="feature-item feature-card">
-                                <i className="fas fa-check-circle feature-icon"></i>
-                                <span className="feature-text">House-made Sauces</span>
-                            </div>
+                            {features.map((feature, index) => (
+                                <div key={feature.id} className="feature-item feature-card">
+                                    <i className={`fas ${feature.icon || 'fa-check-circle'} feature-icon`}></i>
+                                    <span className="feature-text">{feature.title}</span>
+                                </div>
+                            ))}
                         </div>
                         
                         {/* Animated Button */}
@@ -144,8 +192,8 @@ const About = () => {
                             className="animated-button"
                         >
                             <span className="relative z-10 flex items-center gap-2">
-                                Discover Our Space 
-                                <i className="fas fa-arrow-right button-icon"></i>
+                                {aboutData?.button_text || 'Discover Our Space'}
+                                <i className={`fas ${aboutData?.button_icon || 'fa-arrow-right'} button-icon`}></i>
                             </span>
                             <span className="animated-button-underline"></span>
                         </button>
