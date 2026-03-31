@@ -8,11 +8,12 @@ class Reservation extends Model
 {
     protected $fillable = [
         'name', 'phone', 'email', 'date', 'time', 
-        'guests', 'special_requests', 'vip', 'status'
+        'guests', 'special_requests', 'status'
     ];
     
     protected $casts = [
-        'vip' => 'boolean',
-        'date' => 'date'
+        'date' => 'date:Y-m-d',  // Add this line - format YYYY-MM-DD
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s'
     ];
 }
