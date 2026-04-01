@@ -11,7 +11,8 @@ use App\Http\Controllers\HeroController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminAuthController;
-use App\Http\Controllers\ImageUploadController;  // Add this line
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\EmailController;  // Add this line
 
 // Home page
 Route::get('/', function () {
@@ -47,9 +48,11 @@ Route::post('/api/newsletter', [NewsletterController::class, 'store']);
 Route::get('/api/gallery', [GalleryController::class, 'index']);
 Route::get('/api/gallery/{category}', [GalleryController::class, 'getByCategory']);
 
-// Testimonials routes
+// ============ TESTIMONIALS ROUTES ============
+// Public routes
 Route::get('/api/testimonials', [TestimonialController::class, 'index']);
 Route::get('/api/testimonials/active', [TestimonialController::class, 'getActive']);
+Route::post('/api/testimonials/user', [TestimonialController::class, 'userStore']);
 
 // Hero routes
 Route::get('/api/hero', [HeroController::class, 'getHeroContent']);
@@ -84,11 +87,14 @@ Route::post('/api/admin/gallery', [AdminController::class, 'storeGallery']);
 Route::put('/api/admin/gallery/{id}', [AdminController::class, 'updateGallery']);
 Route::delete('/api/admin/gallery/{id}', [AdminController::class, 'deleteGallery']);
 
-// Testimonials Management
+// Testimonials Management (Admin)
 Route::get('/api/admin/testimonials', [AdminController::class, 'getTestimonials']);
 Route::post('/api/admin/testimonials', [AdminController::class, 'storeTestimonial']);
 Route::put('/api/admin/testimonials/{id}', [AdminController::class, 'updateTestimonial']);
 Route::delete('/api/admin/testimonials/{id}', [AdminController::class, 'deleteTestimonial']);
+Route::get('/api/admin/testimonials/pending', [TestimonialController::class, 'getPending']);
+Route::put('/api/admin/testimonials/{id}/approve', [TestimonialController::class, 'approve']);
+Route::put('/api/admin/testimonials/{id}/reject', [TestimonialController::class, 'reject']);
 
 // Hero Section Management
 Route::get('/api/admin/hero', [AdminController::class, 'getHero']);
@@ -109,3 +115,6 @@ Route::delete('/api/admin/about/features/{id}', [AdminController::class, 'delete
 
 // ============ IMAGE UPLOAD ROUTE ============
 Route::post('/api/admin/upload-image', [ImageUploadController::class, 'upload']);
+
+// ============ EMAIL SEND ROUTE ============
+Route::post('/api/admin/send-email', [EmailController::class, 'sendEmail']);

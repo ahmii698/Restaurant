@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Helpers\MailHelper;  // Add this line
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
@@ -21,6 +22,14 @@ class ReservationController extends Controller
         ]);
         
         $reservation = Reservation::create($validated);
+        
+        // Send email to admin
+        try {
+            MailHelper::sendReservationMail($reservation);
+            \Log::info('Mail sent for reservation ID: ' . $reservation->id);
+        } catch (\Exception $e) {
+            \Log::error('Mail failed: ' . $e->getMessage());
+        }
         
         return response()->json([
             'message' => 'Reservation confirmed successfully!',

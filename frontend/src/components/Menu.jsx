@@ -4,10 +4,13 @@ import './Menu.css';
 
 const Menu = () => {
     const [activeCategory, setActiveCategory] = useState('burgers');
-    const [menuItems, setMenuItems] = useState([]);
+    const [allMenuItems, setAllMenuItems] = useState([]);
+    const [displayedItems, setDisplayedItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isVisible, setIsVisible] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(3);
+    const [isExpanded, setIsExpanded] = useState(false);
     const sectionRef = useRef(null);
     const headerRef = useRef(null);
     const tabsRef = useRef(null);
@@ -28,21 +31,30 @@ const Menu = () => {
     const fetchMenuData = async () => {
         setLoading(true);
         setError('');
+        setVisibleCount(3);
+        setIsExpanded(false);
         try {
-            let response;
-            if (activeCategory === 'burgers') {
-                // For first load, get all menu or specific category
-                response = await menuAPI.getByCategory(activeCategory);
-            } else {
-                response = await menuAPI.getByCategory(activeCategory);
-            }
-            setMenuItems(response.data);
+            const response = await menuAPI.getByCategory(activeCategory);
+            setAllMenuItems(response.data);
+            setDisplayedItems(response.data.slice(0, 3));
         } catch (err) {
             console.error('Error fetching menu:', err);
             setError('Failed to load menu. Please try again.');
         } finally {
             setLoading(false);
         }
+    };
+
+    const loadMore = () => {
+        setVisibleCount(allMenuItems.length);
+        setDisplayedItems(allMenuItems);
+        setIsExpanded(true);
+    };
+
+    const showLess = () => {
+        setVisibleCount(3);
+        setDisplayedItems(allMenuItems.slice(0, 3));
+        setIsExpanded(false);
     };
 
     // Intersection Observer for section visibility
@@ -81,19 +93,7 @@ const Menu = () => {
                 });
             }, 100);
         }
-    }, [isVisible, loading, menuItems]);
-
-    const addToOrder = (itemName) => {
-        const toast = document.getElementById('toast');
-        const message = document.getElementById('toast-message');
-        if (toast && message) {
-            message.textContent = `${itemName} added to order! ✨`;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-    };
+    }, [isVisible, loading, displayedItems]);
 
     return (
         <section id="menu" className="menu-section" ref={sectionRef}>
@@ -148,43 +148,61 @@ const Menu = () => {
                             Try Again
                         </button>
                     </div>
-                ) : menuItems.length === 0 ? (
+                ) : displayedItems.length === 0 ? (
                     <div className="text-center py-20">
                         <p className="text-gray-400">No items in this category yet.</p>
                     </div>
                 ) : (
-                    <div className="menu-grid">
-                        {menuItems.map((item, index) => (
-                            <div key={item.id || index} className="menu-card">
-                                <div className="menu-card-image">
-                                    {item.badge && (
-                                        <div className="menu-card-badge">
-                                            {item.badge}
+                    <>
+                        <div className="menu-grid">
+                            {displayedItems.map((item, index) => (
+                                <div key={item.id || index} className="menu-card">
+                                    <div className="menu-card-image">
+                                        {item.badge && (
+                                            <div className="menu-card-badge">
+                                                {item.badge}
+                                            </div>
+                                        )}
+                                        <img 
+                                            src={item.image_url || item.img} 
+                                            alt={item.name} 
+                                            className="menu-card-img" 
+                                        />
+                                        <div className="menu-card-price">
+                                            ${item.price}
                                         </div>
-                                    )}
-                                    <img 
-                                        src={item.image_url || item.img} 
-                                        alt={item.name} 
-                                        className="menu-card-img" 
-                                    />
-                                    <div className="menu-card-price">
-                                        ${item.price}
+                                    </div>
+                                    <div className="menu-card-content">
+                                        <h3 className="menu-card-title">{item.name}</h3>
+                                        <p className="menu-card-desc">{item.description}</p>
                                     </div>
                                 </div>
-                                <div className="menu-card-content">
-                                    <h3 className="menu-card-title">{item.name}</h3>
-                                    <p className="menu-card-desc">{item.description}</p>
-                                    <button 
-                                        onClick={() => addToOrder(item.name)} 
-                                        className="menu-add-btn"
-                                    >
-                                        <i className="fas fa-plus-circle"></i> 
-                                        Add to Order
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                        
+                        {/* Load More / Show Less Buttons */}
+                        <div className="text-center mt-10 flex gap-4 justify-center">
+                            {!isExpanded && allMenuItems.length > 3 && (
+                                <button 
+                                    onClick={loadMore}
+                                    className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white font-semibold rounded-lg hover:shadow-lg transition-all hover:scale-105"
+                                >
+                                    <i className="fas fa-plus-circle mr-2"></i>
+                                    Load More ({allMenuItems.length - 3} more)
+                                </button>
+                            )}
+                            
+                            {isExpanded && (
+                                <button 
+                                    onClick={showLess}
+                                    className="px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white font-semibold rounded-lg hover:shadow-lg transition-all hover:scale-105"
+                                >
+                                    <i className="fas fa-minus-circle mr-2"></i>
+                                    Show Less (Show only 3)
+                                </button>
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
         </section>

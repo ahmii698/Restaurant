@@ -32,9 +32,9 @@ const Contact = () => {
                     <div>
                         <h4 className="text-xl font-bold mb-6 text-yellow-500">Contact</h4>
                         <ul className="space-y-3 text-gray-400">
-                            <li className="flex items-start gap-3"><i className="fas fa-map-marker-alt mt-1 text-yellow-500"></i><span>456 Gourmet Avenue<br />New York, NY 10001</span></li>
-                            <li className="flex items-center gap-3"><i className="fas fa-phone text-yellow-500"></i><span>+1 (555) 987-6543</span></li>
-                            <li className="flex items-center gap-3"><i className="fas fa-envelope text-yellow-500"></i><span>hello@gourmetbistro.com</span></li>
+                            <li className="flex items-start gap-3"><i className="fas fa-map-marker-alt mt-1 text-yellow-500"></i><span>R870<br />Block17</span></li>
+                            <li className="flex items-center gap-3"><i className="fas fa-phone text-yellow-500"></i><span>03322751363</span></li>
+                            <li className="flex items-center gap-3"><i className="fas fa-envelope text-yellow-500"></i><span>ahmedmalik30600@gmail.com</span></li>
                             <li className="flex items-center gap-3"><i className="fas fa-clock text-yellow-500"></i><span>Mon-Sun: 11AM - 11PM</span></li>
                         </ul>
                     </div>

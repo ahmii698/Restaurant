@@ -12,7 +12,7 @@ class Reservation extends Model
     ];
     
     protected $casts = [
-        'date' => 'date:Y-m-d',  // Add this line - format YYYY-MM-DD
+        'date' => 'date:Y-m-d',
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s'
     ];

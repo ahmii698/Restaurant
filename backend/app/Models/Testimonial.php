@@ -8,12 +8,13 @@ class Testimonial extends Model
 {
     protected $fillable = [
         'name', 'title', 'initials', 'stars', 'quote', 
-        'order', 'is_active'
+        'order', 'is_active', 'status'
     ];
     
     protected $casts = [
         'stars' => 'integer',
         'order' => 'integer',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'status' => 'string'
     ];
 }
