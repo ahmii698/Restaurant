@@ -8,6 +8,7 @@ import GalleryManager from './admin/pages/GalleryManager';
 import TestimonialsManager from './admin/pages/TestimonialsManager';
 import HeroManager from './admin/pages/HeroManager';
 import AboutManager from './admin/pages/AboutManager';
+import HeroStatsManager from './admin/pages/HeroStatsManager'; // ✅ HeroStatsManager import karo
 // Contacts import hata diya
 import './Admin.css';
 
@@ -70,6 +71,7 @@ function AdminApp() {
         { path: '/admin/testimonials', name: 'Testimonials', icon: 'fa-star' },
         { path: '/admin/hero', name: 'Hero Section', icon: 'fa-home' },
         { path: '/admin/about', name: 'About Section', icon: 'fa-info-circle' },
+        { path: '/admin/hero-stats', name: 'Hero Stats', icon: 'fa-chart-simple' }, // ✅ Menu mein add karo
         // Contacts hata diya
     ];
 
@@ -117,6 +119,7 @@ function AdminApp() {
                         <Route path="/testimonials" element={<TestimonialsManager />} />
                         <Route path="/hero" element={<HeroManager />} />
                         <Route path="/about" element={<AboutManager />} />
+                        <Route path="/hero-stats" element={<HeroStatsManager />} /> {/* ✅ Route add karo */}
                         {/* Contacts route hata diya */}
                         <Route path="/" element={<Navigate to="/admin/dashboard" />} />
                     </Routes>

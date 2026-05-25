@@ -71,11 +71,9 @@ const MenuManager = () => {
             return;
         }
         
-        // Show preview immediately
         const previewUrl = URL.createObjectURL(file);
         setImagePreview(previewUrl);
         
-        // Upload image to server
         const uploadedUrl = await uploadImage(file);
         if (uploadedUrl) {
             setFormData({...formData, image_url: uploadedUrl});
@@ -147,13 +145,13 @@ const MenuManager = () => {
     );
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-yellow-600">🍽️ Menu Items</h1>
+        <div className="px-3 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold text-yellow-600">🍽️ Menu Items</h1>
                 {!showForm && (
                     <button 
                         onClick={() => setShowForm(true)} 
-                        className="px-5 py-2 bg-yellow-700 hover:bg-yellow-600 text-white font-semibold rounded-lg transition"
+                        className="w-full sm:w-auto px-4 sm:px-5 py-2 bg-yellow-700 hover:bg-yellow-600 text-white font-semibold rounded-lg transition text-sm sm:text-base"
                     >
                         <i className="fas fa-plus mr-2"></i>
                         Add New Item
@@ -162,9 +160,9 @@ const MenuManager = () => {
             </div>
             
             {showForm && (
-                <div className="bg-gray-900 rounded-xl border border-yellow-700/50 p-6 mb-8">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold text-yellow-600">
+                <div className="bg-gray-900 rounded-xl border border-yellow-700/50 p-4 sm:p-6 mb-6 sm:mb-8">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                        <h2 className="text-lg sm:text-xl font-bold text-yellow-600">
                             <i className="fas fa-pen-alt mr-2"></i>
                             {editingId ? 'Edit Menu Item' : 'Add New Menu Item'}
                         </h2>
@@ -183,25 +181,25 @@ const MenuManager = () => {
                         </button>
                     </div>
                     
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="grid md:grid-cols-2 gap-5">
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                             <div>
-                                <label className="block text-yellow-600 text-sm font-semibold mb-2">Item Name *</label>
+                                <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-2">Item Name *</label>
                                 <input 
                                     type="text" 
                                     placeholder="e.g., Wagyu Truffle Burger" 
                                     value={formData.name} 
                                     onChange={(e) => setFormData({...formData, name: e.target.value})} 
                                     required 
-                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition text-sm sm:text-base"
                                 />
                             </div>
                             <div>
-                                <label className="block text-yellow-600 text-sm font-semibold mb-2">Category *</label>
+                                <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-2">Category *</label>
                                 <select 
                                     value={formData.category} 
                                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition text-sm sm:text-base"
                                 >
                                     {categories.map(cat => (
                                         <option key={cat} value={cat}>{categoryLabels[cat]}</option>
@@ -210,9 +208,9 @@ const MenuManager = () => {
                             </div>
                         </div>
                         
-                        <div className="grid md:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                             <div>
-                                <label className="block text-yellow-600 text-sm font-semibold mb-2">Price ($) *</label>
+                                <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-2">Price ($) *</label>
                                 <input 
                                     type="number" 
                                     step="0.01"
@@ -220,52 +218,50 @@ const MenuManager = () => {
                                     value={formData.price} 
                                     onChange={(e) => setFormData({...formData, price: e.target.value})} 
                                     required 
-                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition text-sm sm:text-base"
                                 />
                             </div>
                             <div>
-                                <label className="block text-yellow-600 text-sm font-semibold mb-2">Display Order</label>
+                                <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-2">Display Order</label>
                                 <input 
                                     type="number" 
                                     placeholder="1, 2, 3..." 
                                     value={formData.order} 
                                     onChange={(e) => setFormData({...formData, order: parseInt(e.target.value)})} 
-                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition text-sm sm:text-base"
                                 />
                             </div>
                         </div>
                         
                         <div>
-                            <label className="block text-yellow-600 text-sm font-semibold mb-2">Description</label>
+                            <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-2">Description</label>
                             <textarea 
                                 placeholder="Describe the dish..." 
                                 value={formData.description} 
                                 onChange={(e) => setFormData({...formData, description: e.target.value})} 
                                 rows="3"
-                                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition resize-none"
+                                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition resize-none text-sm sm:text-base"
                             />
                         </div>
                         
                         <div>
-                            <label className="block text-yellow-600 text-sm font-semibold mb-2">Badge (Optional)</label>
+                            <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-2">Badge (Optional)</label>
                             <input 
                                 type="text" 
                                 placeholder="e.g., Chef's Special, Best Seller, Vegan" 
                                 value={formData.badge} 
                                 onChange={(e) => setFormData({...formData, badge: e.target.value})} 
-                                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition"
+                                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition text-sm sm:text-base"
                             />
                         </div>
                         
-                        {/* Image Upload Section */}
-                        <div className="border-t border-yellow-700/30 pt-5 mt-3">
-                            <label className="block text-yellow-600 text-sm font-semibold mb-3">Item Image *</label>
+                        <div className="border-t border-yellow-700/30 pt-4 sm:pt-5 mt-2 sm:mt-3">
+                            <label className="block text-yellow-600 text-xs sm:text-sm font-semibold mb-3">Item Image *</label>
                             
-                            {/* Image Upload from Computer */}
                             <div className="mb-4">
-                                <div className="flex items-center gap-4">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                                     <label className="cursor-pointer">
-                                        <div className="px-5 py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-medium rounded-lg transition">
+                                        <div className="px-4 sm:px-5 py-2 sm:py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-medium rounded-lg transition text-center text-sm sm:text-base">
                                             <i className="fas fa-upload mr-2"></i>
                                             Choose Image
                                         </div>
@@ -280,21 +276,20 @@ const MenuManager = () => {
                                     {uploading && (
                                         <div className="flex items-center gap-2 text-yellow-600">
                                             <i className="fas fa-spinner fa-spin"></i>
-                                            <span>Uploading...</span>
+                                            <span className="text-sm">Uploading...</span>
                                         </div>
                                     )}
                                 </div>
                                 <p className="text-gray-500 text-xs mt-2">Select image from your computer. JPG, PNG, WebP supported. Max 5MB.</p>
                             </div>
                             
-                            {/* Image Preview */}
                             {imagePreview && (
                                 <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-yellow-700/30">
                                     <p className="text-yellow-600 text-sm mb-2">✓ Image Preview:</p>
                                     <img 
                                         src={imagePreview} 
                                         alt="Preview" 
-                                        className="max-w-full h-32 object-cover rounded-lg border border-yellow-700/50"
+                                        className="max-w-full h-28 sm:h-32 object-cover rounded-lg border border-yellow-700/50"
                                         onError={(e) => { e.target.src = 'https://via.placeholder.com/128?text=Invalid+Image'; }}
                                     />
                                     {formData.image_url && (
@@ -305,9 +300,8 @@ const MenuManager = () => {
                                 </div>
                             )}
                             
-                            {/* Image URL Input (Optional) */}
                             <div className="mt-4">
-                                <label className="block text-gray-400 text-sm mb-2">Or enter image URL directly</label>
+                                <label className="block text-gray-400 text-xs sm:text-sm mb-2">Or enter image URL directly</label>
                                 <input 
                                     type="text" 
                                     placeholder="https://images.unsplash.com/..." 
@@ -316,16 +310,16 @@ const MenuManager = () => {
                                         setFormData({...formData, image_url: e.target.value});
                                         if (e.target.value) setImagePreview(e.target.value);
                                     }}
-                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-600 focus:outline-none transition text-sm sm:text-base"
                                 />
                             </div>
                         </div>
                         
-                        <div className="flex gap-4 pt-4">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-3 sm:pt-4">
                             <button 
                                 type="submit" 
                                 disabled={uploading}
-                                className="px-6 py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-bold rounded-lg transition disabled:opacity-50"
+                                className="px-4 sm:px-6 py-2 sm:py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-bold rounded-lg transition disabled:opacity-50 text-sm sm:text-base"
                             >
                                 <i className="fas fa-save mr-2"></i>
                                 {editingId ? 'Update Item' : 'Add Item'}
@@ -339,7 +333,7 @@ const MenuManager = () => {
                                     setImagePreview(null);
                                     setFormData({ name: '', category: 'burgers', price: '', description: '', image_url: '', badge: '', order: 0 });
                                 }} 
-                                className="px-6 py-3 bg-gray-700 text-gray-300 font-semibold rounded-lg hover:bg-gray-600 transition"
+                                className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-gray-300 font-semibold rounded-lg hover:bg-gray-600 transition text-sm sm:text-base"
                             >
                                 Cancel
                             </button>
@@ -348,68 +342,82 @@ const MenuManager = () => {
                 </div>
             )}
             
-            {/* Menu Items Table */}
+            {/* Menu Items Table with Scrollbar */}
             <div className="bg-gray-900 rounded-xl border border-yellow-700/50 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-yellow-700/30 bg-gray-800">
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">ID</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Image</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Name</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Category</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Price</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Badge</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Order</th>
-                                <th className="px-4 py-3 text-left text-yellow-600 font-semibold">Actions</th>
-                             </tr>
-                        </thead>
-                        <tbody>
-                            {menuItems.map(item => (
-                                <tr key={item.id} className="border-b border-yellow-700/20 hover:bg-gray-800/50 transition">
-                                    <td className="px-4 py-3 text-white">{item.id}</td>
-                                    <td className="px-4 py-3">
-                                        <img 
-                                            src={item.image_url} 
-                                            alt={item.name} 
-                                            className="w-12 h-12 object-cover rounded"
-                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/48?text=No+Image'; }}
-                                        />
-                                    </td>
-                                    <td className="px-4 py-3 text-white font-medium">{item.name}</td>
-                                    <td className="px-4 py-3 text-gray-400">{categoryLabels[item.category] || item.category}</td>
-                                    <td className="px-4 py-3 text-yellow-500">${item.price}</td>
-                                    <td className="px-4 py-3">
-                                        {item.badge && (
-                                            <span className="px-2 py-1 bg-red-700/50 text-red-300 text-xs rounded-full">
-                                                {item.badge}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-gray-400">{item.order}</td>
-                                    <td className="px-4 py-3">
-                                        <button 
-                                            onClick={() => handleEdit(item)} 
-                                            className="px-3 py-1 bg-yellow-700/50 text-yellow-500 rounded-lg hover:bg-yellow-700 transition mr-2"
-                                        >
-                                            <i className="fas fa-edit mr-1"></i> Edit
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(item.id)} 
-                                            className="px-3 py-1 bg-red-700/50 text-red-400 rounded-lg hover:bg-red-700 transition"
-                                        >
-                                            <i className="fas fa-trash mr-1"></i> Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                {/* Scroll Hint for Mobile */}
+                <div className="md:hidden flex items-center justify-center gap-2 py-2 bg-gray-800/50 text-gray-400 text-xs border-b border-yellow-700/30">
+                    <i className="fas fa-arrow-left text-yellow-600"></i>
+                    <span>Swipe left to see more</span>
+                    <i className="fas fa-arrow-right text-yellow-600"></i>
                 </div>
+                
+                <div className="overflow-x-auto overflow-y-hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className="min-w-[800px]">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-yellow-700/30 bg-gray-800">
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">ID</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Image</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Name</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Category</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Price</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Badge</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Order</th>
+                                    <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-yellow-600 font-semibold text-xs sm:text-sm">Actions</th>
+                                  </tr>
+                            </thead>
+                            <tbody>
+                                {menuItems.map(item => (
+                                    <tr key={item.id} className="border-b border-yellow-700/20 hover:bg-gray-800/50 transition">
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3 text-white text-xs sm:text-sm">{item.id}</td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3">
+                                            <img 
+                                                src={item.image_url} 
+                                                alt={item.name} 
+                                                className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded"
+                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/48?text=No+Image'; }}
+                                            />
+                                        </td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3 text-white font-medium text-xs sm:text-sm">{item.name}</td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-400 text-xs sm:text-sm">{categoryLabels[item.category] || item.category}</td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3 text-yellow-500 text-xs sm:text-sm">${item.price}</td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3">
+                                            {item.badge && (
+                                                <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-700/50 text-red-300 text-[10px] sm:text-xs rounded-full whitespace-nowrap">
+                                                    {item.badge}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-400 text-xs sm:text-sm">{item.order}</td>
+                                        <td className="px-3 sm:px-4 py-2 sm:py-3">
+                                            <div className="flex flex-wrap gap-1">
+                                                <button 
+                                                    onClick={() => handleEdit(item)} 
+                                                    className="px-2 sm:px-3 py-1 bg-yellow-700/50 text-yellow-500 rounded-lg hover:bg-yellow-700 transition text-xs sm:text-sm whitespace-nowrap"
+                                                >
+                                                    <i className="fas fa-edit mr-1"></i>
+                                                    <span className="hidden sm:inline">Edit</span>
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDelete(item.id)} 
+                                                    className="px-2 sm:px-3 py-1 bg-red-700/50 text-red-400 rounded-lg hover:bg-red-700 transition text-xs sm:text-sm whitespace-nowrap"
+                                                >
+                                                    <i className="fas fa-trash mr-1"></i>
+                                                    <span className="hidden sm:inline">Delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 {menuItems.length === 0 && (
                     <div className="text-center py-12 text-gray-500">
                         <i className="fas fa-utensils text-4xl mb-3 block"></i>
-                        <p>No menu items found. Click "Add New Item" to create one.</p>
+                        <p className="text-sm sm:text-base">No menu items found. Click "Add New Item" to create one.</p>
                     </div>
                 )}
             </div>

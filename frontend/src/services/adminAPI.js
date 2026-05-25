@@ -32,6 +32,13 @@ export const adminAPI = {
     updateFeature: (id, data) => api.put(`/about/features/${id}`, data),
     deleteFeature: (id) => api.delete(`/about/features/${id}`),
     getContacts: () => api.get('/contacts'),
+    
+    // ========== HERO STATS API ==========
+    getHeroStats: () => api.get('/hero-stats'),
+    createHeroStat: (data) => api.post('/hero-stats', data),
+    updateHeroStat: (id, data) => api.put(`/hero-stats/${id}`, data),
+    deleteHeroStat: (id) => api.delete(`/hero-stats/${id}`),
+    updateHeroStatsOrder: (stats) => api.post('/hero-stats/update-order', { stats }),
 };
 
 export default adminAPI;

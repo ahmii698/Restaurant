@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { heroAPI } from '../services/api';
+import axios from 'axios';
 import './Hero.css';
 
 const Hero = () => {
@@ -13,6 +14,7 @@ const Hero = () => {
     // Fetch hero data from database
     useEffect(() => {
         fetchHeroData();
+        fetchHeroStats(); // ✅ Hero stats fetch karne ke liye
     }, []);
 
     const fetchHeroData = async () => {
@@ -32,6 +34,25 @@ const Hero = () => {
             console.error('Error fetching hero data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // ✅ Naya function - Hero Stats fetch karne ke liye
+    const fetchHeroStats = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/admin/hero-stats');
+            // Sirf active stats filter karo aur order ke hisab se sort karo
+            const activeStats = response.data.filter(stat => stat.is_active).sort((a, b) => a.order - b.order);
+            setStats(activeStats);
+            
+            // Initialize counters
+            const initialCounters = {};
+            activeStats.forEach(stat => {
+                initialCounters[stat.id] = 0;
+            });
+            setCounters(initialCounters);
+        } catch (error) {
+            console.error('Error fetching hero stats:', error);
         }
     };
 
@@ -141,18 +162,18 @@ const Hero = () => {
                     </button>
                 </div>
                 
-                {/* Stats with animated numbers */}
+                {/* ✅ Stats with animated numbers - Updated to show icon if available */}
                 <div className="hero-stats">
                     {stats.map((stat) => (
                         <div key={stat.id} className="stat-item">
-                            <div className="stat-number">{counters[stat.id] || 0}</div>
+                            {/* ✅ Icon show karo agar hai */}
+                            {stat.icon && <i className={`fas ${stat.icon} text-yellow-500 text-2xl mb-2 block`}></i>}
+                            <div className="stat-number">{counters[stat.id] || 0}+</div>
                             <div className="stat-label">{stat.label}</div>
                         </div>
                     ))}
                 </div>
             </div>
-            
-           
         </section>
     );
 };
